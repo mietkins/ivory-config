@@ -49,4 +49,4 @@ object example1 extends App {
 
 ```
 
-For more examples see [Tests](src/scala/pl/mietkins/ivory/config/ImplTest.scala)
+For more examples see [Tests](src/test/scala/pl/mietkins/ivory/config/ImplTest.scala)
