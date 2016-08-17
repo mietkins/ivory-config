@@ -1,7 +1,7 @@
-# Welocme
+# Welcome
 This is SIMPLE mapper from com.typesafe.config.Config to case class powered by scala macros.
 
-# Installl 
+# Install
 
 For sbt users
 
