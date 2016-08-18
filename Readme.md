@@ -1,6 +1,9 @@
 # Welcome
 This is SIMPLE mapper from com.typesafe.config.Config to case class powered by scala macros.
 
+# Build status
+[![Build Status](https://travis-ci.org/mietkins/ivory-config.svg?branch=master)](https://travis-ci.org/mietkins/ivory-config)
+
 # Install
 
 For sbt users
