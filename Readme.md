@@ -1,10 +1,10 @@
-# Welcome
+## Welcome 
 This is SIMPLE mapper from com.typesafe.config.Config to case class powered by scala macros.
 
-# Build status
+## Build status
 [![Build Status](https://travis-ci.org/mietkins/ivory-config.svg?branch=master)](https://travis-ci.org/mietkins/ivory-config)
 
-# Install
+## Install
 
 For sbt users
 
@@ -13,7 +13,7 @@ For sbt users
 3. Add dependency to your project "pl.mietkins" %% "ivory-config" % "0.1"
 4. Use them :)
 
-# Example
+## Example
 
 ```scala
 import com.typesafe.config.{ConfigFactory, Config}
