@@ -22,12 +22,10 @@ object impl {
       case t if t =:= c.typeOf[String] => q"c.getString(${path})"
       case t if t <:< c.typeOf[AnyVal] => {
         val methodName = s"get${t.typeSymbol.name.decodedName.toString}"
-
         q"c.${TermName(methodName)}(${path})"
       }
       case t if t <:< c.typeOf[Option[_]] => {
         val innerTree = handlePath(c)(t.typeArgs.head, path)
-
         q"if(c.hasPath($path)) Some(${innerTree}) else None"
       }
       case t if t <:< c.typeOf[List[_]] => {
@@ -54,9 +52,8 @@ object impl {
       val symbolString = s.name.decodedName.toString
       q"${TermName(symbolString)} = ${handlePath(c)(s.typeSignature, symbolString)}"
     }
-    val caseClassTermNameTree = q"${TermName(tpe.typeSymbol.name.decodedName.toString)}"
 
-    q"(c : Config) => ${caseClassTermNameTree}(..$params)"
+    q"(c : Config) => ${TermName(tpe.typeSymbol.name.decodedName.toString)}(..$params)"
   }
 
   def getFromConfigImpl[T: c.WeakTypeTag](c: Context): c.Expr[Config => T] = {
