@@ -19,8 +19,7 @@ object impl {
     import c.universe._
 
     tpe.resultType match {
-      case t if t =:= c.typeOf[String] => q"c.getString(${path})"
-      case t if t <:< c.typeOf[AnyVal] => {
+      case t if t <:< c.typeOf[AnyVal] || t =:= c.typeOf[String] => {
         val methodName = s"get${t.typeSymbol.name.decodedName.toString}"
         q"c.${TermName(methodName)}(${path})"
       }
