@@ -1,6 +1,10 @@
 ## Welcome 
 This is SIMPLE automapper from com.typesafe.config.Config to case class powered by scala macros.
 
+Supported types:
+
+    case class, List, Option, String, Boolean, Int, Long, Double
+
 ## Build status
 [![Build Status](https://travis-ci.org/mietkins/ivory-config.svg?branch=master)](https://travis-ci.org/mietkins/ivory-config)
 
@@ -13,6 +17,13 @@ Add dependency
 If needed add resolver
 
     resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+
+Required Imports
+
+```scala
+import com.typesafe.config.Config
+import scala.collection.JavaConversions._
+```
 
 ## Example
 

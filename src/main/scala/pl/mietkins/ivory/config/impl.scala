@@ -6,15 +6,20 @@ import scala.reflect.macros.blackbox.Context
 
 object impl {
 
-  def isCaseClass(c: Context)(symbol: c.Symbol): Boolean = symbol.isClass && symbol.asClass.isCaseClass
+  private val supportedTypesString = """"
+    Supported types:
+      case class, List, Option, String, Boolean, Int, Long, Double
+    """
 
-  def getCaseClassAccessors(c: Context)(t: c.Type): List[c.Symbol] = {
+  private def isCaseClass(c: Context)(symbol: c.Symbol): Boolean = symbol.isClass && symbol.asClass.isCaseClass
+
+  private def getCaseClassAccessors(c: Context)(t: c.Type): List[c.Symbol] = {
     t.members.collect({
       case m: c.universe.MethodSymbol if m.isCaseAccessor => m
     }).toList
   }
 
-  def handlePath(c: Context)(tpe: c.Type, path: String): c.Tree = {
+  private def handlePath(c: Context)(tpe: c.Type, path: String): c.Tree = {
 
     import c.universe._
 
@@ -39,13 +44,14 @@ object impl {
         }
       }
       case t if isCaseClass(c)(t.typeSymbol) => q"${handleCaseClass(c)(t)}(c.getConfig(${path}))"
+      case t => throw new NotImplementedError(supportedTypesString)
     }
   }
 
   def handleCaseClass(c: Context)(tpe: c.Type): c.Tree = {
     import c.universe._
 
-    assert(isCaseClass(c)(tpe.typeSymbol))
+    assert(isCaseClass(c)(tpe.typeSymbol), "Root type must be case class")
 
     val params = getCaseClassAccessors(c)(tpe).map { s =>
       val symbolString = s.name.decodedName.toString
