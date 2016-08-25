@@ -7,8 +7,11 @@ This is SIMPLE automapper from com.typesafe.config.Config to case class powered 
 ## Install
 
 Add dependency
+
     libraryDependencies += "pl.mietkins" %% "ivory-config" % "0.1-SNAPSHOT"
+
 If needed add resolver
+
     resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
 ## Example
