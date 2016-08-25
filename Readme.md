@@ -6,12 +6,10 @@ This is SIMPLE automapper from com.typesafe.config.Config to case class powered 
 
 ## Install
 
-For sbt users
-
-1. Clone this repository
-2. Run command sbt clean publishLocal inside repository dir
-3. Add dependency to your project **"pl.mietkins" %% "ivory-config" % "0.1-SNAPSHOT"**
-4. Use them :)
+Add dependency
+    libraryDependencies += "pl.mietkins" %% "ivory-config" % "0.1-SNAPSHOT"
+If needed add resolver
+    resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
 ## Example
 
