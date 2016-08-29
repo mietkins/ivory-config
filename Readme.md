@@ -12,11 +12,7 @@ Supported types:
 
 Add dependency
 
-    libraryDependencies += "pl.mietkins" %% "ivory-config" % "0.1-SNAPSHOT"
-
-If needed add resolver
-
-    resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+    libraryDependencies += "pl.mietkins" %% "ivory-config" % "0.1.0"
 
 Required Imports
 
