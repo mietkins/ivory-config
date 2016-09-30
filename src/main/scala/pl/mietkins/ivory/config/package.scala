@@ -8,10 +8,10 @@ package object config {
 
 
   /** *
-    * Macro expands given type T to function (c : Config) => T
+    * Macro expands given type T to function (c : ConfigValue) => T
     *
     * Supported types
-    *   case class, List, Option, String, Boolean, Int, Long, Double
+    *   T ∈ [case class, Map[String, T] List[T], Option[T], String, Boolean, Int, Long, Double]
     *
     * Example:
     *
@@ -55,7 +55,6 @@ package object config {
     * </pre>
     *
     */
-
   def getFromConfig[T]: ConfigValue => T = macro Impl.getFromConfigImpl[T]
 
   implicit def toConfigValue(c : Config) : ConfigValue = c.root()

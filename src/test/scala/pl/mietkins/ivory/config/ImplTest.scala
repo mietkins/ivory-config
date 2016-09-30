@@ -3,9 +3,6 @@ package pl.mietkins.ivory.config
 import com.typesafe.config.{Config, ConfigFactory}
 import org.scalatest.FunSuite
 
-/**
-  * Created by mietkins on 30.09.16.
-  */
 class ImplTest extends FunSuite {
 
   test("string mapping") {
@@ -97,7 +94,6 @@ class ImplTest extends FunSuite {
       map: Map[String, Int],
       listMap: List[Map[String, Boolean]],
       mapListMap: Map[String, List[Map[String, InnerTest]]])
-
 
     val config = ConfigFactory.parseString(
       """{

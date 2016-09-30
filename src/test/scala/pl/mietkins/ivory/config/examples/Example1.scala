@@ -30,5 +30,7 @@ object Example1 extends App {
 
   val person: Person = getFromConfig[Person](config.getConfig("example1"))
 
+  // scalastyle:off
   println(person)
+  // scalastyle:on
 }

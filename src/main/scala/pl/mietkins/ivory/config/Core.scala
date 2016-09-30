@@ -2,9 +2,6 @@ package pl.mietkins.ivory.config
 
 import scala.reflect.macros.blackbox.Context
 
-/**
-  * Created by mietkins on 30.09.16.
-  */
 object Core {
 
   private[config] val supportedTypesString =

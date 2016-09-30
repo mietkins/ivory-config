@@ -14,6 +14,7 @@ object Impl {
 
   private[config] def handleString(c: Context): c.Tree = {
     import c.universe._
+
     q"(cv : ConfigValue) => cv.unwrapped().asInstanceOf[String]"
   }
 
@@ -57,7 +58,6 @@ object Impl {
 
     import c.universe._
 
-
     val params = Core.getCaseClassAccessors(c)(tpe).map { s =>
       val symbolString = s.name.decodedName.toString
 
@@ -90,6 +90,7 @@ object Impl {
       case t if Core.isCaseClass(c)(t.typeSymbol) => handleCaseClass(c)(t)
       case t => throw new NotImplementedError(s"$t \n ${Core.supportedTypesString}")
     }
+    // scalastyle:on
   }
 
   def getFromConfigImpl[T: c.WeakTypeTag](c: Context): c.Expr[ConfigValue => T] = {
@@ -101,5 +102,4 @@ object Impl {
          ${handleConfig(c)(c.weakTypeOf[T])}
         """)
   }
-
 }
