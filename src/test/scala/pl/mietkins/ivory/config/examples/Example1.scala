@@ -1,10 +1,9 @@
 package pl.mietkins.ivory.config.examples
 
-import com.typesafe.config.{ConfigFactory, Config}
-import pl.mietkins.ivory.config.getFromConfig
-import scala.collection.JavaConversions._
+import com.typesafe.config.{ConfigFactory}
+import pl.mietkins.ivory.config._
 
-object example1 extends App {
+object Example1 extends App {
 
   case class Pet(name : String)
 

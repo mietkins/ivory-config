@@ -1,15 +1,14 @@
 package pl.mietkins.ivory.config
 
-import com.typesafe.config.Config
+import com.typesafe.config.ConfigValue
 
-import scala.collection.JavaConversions._
 import scala.language.experimental.macros
 
 object showTree extends App {
 
-  import examples.example1._
+  import examples.Example1._
 
-  def getFromConfigTest[T]: Config => T = macro testImpl.getFromConfigImplTest[T]
+  def getFromConfigTest[T]: ConfigValue => T = macro TestImpl.getFromConfigImplTest[T]
 
   getFromConfigTest[Person]
 }

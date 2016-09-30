@@ -2,38 +2,74 @@ package pl.mietkins.ivory.config
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.scalatest.FunSuite
-import scala.collection.JavaConversions._
 
+/**
+  * Created by mietkins on 30.09.16.
+  */
 class ImplTest extends FunSuite {
 
-  test("AnyVal mappings") {
+  test("string mapping") {
 
-    case class AnyValTest(bool: Boolean, int: Int, long: Long, double: Double)
+    val config: Config = ConfigFactory.parseString(
+      """
+        |   string = "s"
+        | """.stripMargin)
 
-    val config = ConfigFactory.parseString(
-      """{
+    assert(getFromConfig[String](config.getValue("string")) === "s")
+  }
+
+  test("boolean mapping") {
+
+    val config: Config = ConfigFactory.parseString(
+      """
         |   bool = false
+        | """.stripMargin)
+
+    assert(getFromConfig[Boolean](config.getValue("bool")) === false)
+  }
+
+  test("number mapping") {
+
+    val config: Config = ConfigFactory.parseString(
+      """
         |   int = 1
         |   long = 2
-        |   double = 3
-        |} """.stripMargin)
+        |   double = 3.0
+        | """.stripMargin)
 
-    assert(getFromConfig[AnyValTest](config) === AnyValTest(false, 1, 2, 3))
+    assert(getFromConfig[Int](config.getValue("int")) === 1)
+    assert(getFromConfig[Long](config.getValue("long")) === 2)
+    assert(getFromConfig[Double](config.getValue("double")) === 3.0)
   }
 
-  test("String mappings") {
 
-    case class StringTest(string: String)
+  test("list mapping") {
 
-    val config = ConfigFactory.parseString(
-      """{
-        |   string = "Tested"
-        |} """.stripMargin)
+    val config: Config = ConfigFactory.parseString(
+      """
+        |   list = [1,2,3]
+        |   listList = [[1,2,3]]
+        | """.stripMargin)
 
-    assert(getFromConfig[StringTest](config) === StringTest("Tested"))
+    assert(getFromConfig[List[Int]](config.getValue("list")) === List(1, 2, 3))
+    assert(getFromConfig[List[List[Int]]](config.getValue("listList")) === List(List(1, 2, 3)))
   }
 
-  test("Nested case class") {
+  test("map mapping") {
+
+    val config: Config = ConfigFactory.parseString(
+      """
+        |   map = {a = 1, b = 2, c = 3}
+        |   mapMap = {a = { a = 1}, b = {b = 2}}
+        | """.stripMargin)
+
+    assert(getFromConfig[Map[String, Int]](config.getValue("map")) === Map("a" -> 1, "b" -> 2, "c" -> 3))
+    assert(
+      getFromConfig[Map[String, Map[String, Int]]](config.getValue("mapMap")) === Map("a" -> Map("a" -> 1), "b" -> Map("b" -> 2)))
+  }
+
+
+  test("case class mapping") {
     case class InnerTest(string: String)
     case class OuterTest(inner: InnerTest)
 
@@ -44,85 +80,65 @@ class ImplTest extends FunSuite {
         |   }
         |} """.stripMargin)
 
-    assert(getFromConfig[OuterTest](config) === OuterTest(InnerTest("Tested")))
+    assert(getFromConfig[OuterTest](config.root()) === OuterTest(InnerTest("Tested")))
   }
 
-  test("List mappings") {
+  test("complex mapping") {
 
-    case class StringTest(string: String)
+    case class InnerTest(
+      string: String,
+      boolean: Boolean,
+      number: Long,
+      option: Option[String])
 
-    case class ListTest(
-      stringList: List[String],
-      boolList: List[Boolean],
-      intList: List[Int],
-      longList: List[Long],
-      doubleList: List[Double],
-      caseClassList: List[StringTest])
+    case class OuterTest(
+      inner: InnerTest,
+      list: List[Int],
+      map: Map[String, Int],
+      listMap: List[Map[String, Boolean]],
+      mapListMap: Map[String, List[Map[String, InnerTest]]])
 
 
     val config = ConfigFactory.parseString(
       """{
-        |   stringList = ["Tested1", "Tested2"]
-        |   boolList = [false, true, false]
-        |   intList = [1, 2, 3]
-        |   longList = [4, 5, 6]
-        |   doubleList = [7, 8, 9]
-        |   caseClassList = [
-        |     {
-        |       string = "CaseClass1"
-        |     }
-        |     {
-        |       string = "CaseClass2"
-        |     }
-        |     {
-        |       string = "CaseClass3"
-        |     }
-        |   ]
+        |   inner = {
+        |     string = "Tested"
+        |     boolean = false
+        |     number = 2
+        |     option = "some"
+        |   }
+        |   list : [1,2,3]
+        |   map : { a = 1 }
+        |   listMap : [{a = true, b = false}]
+        |   mapListMap : {
+        |     a = [
+        |       {
+        |         i1 = {
+        |           string = "Tested"
+        |           boolean = false
+        |           number = 2
+        |           option = "some"
+        |         },
+        |         i2 = {
+        |           string = "Tested"
+        |           boolean = false
+        |           number = 2
+        |         }
+        |       }
+        |     ]
+        |   }
         |} """.stripMargin)
 
-    assert(getFromConfig[ListTest](config) === ListTest(
-      List("Tested1", "Tested2"),
-      List(false, true, false),
+    assert(getFromConfig[OuterTest](config.root()) === OuterTest(
+      InnerTest("Tested", false, 2, Some("some")),
       List(1, 2, 3),
-      List(4l, 5l, 6l),
-      List(7d, 8d, 9d),
-      List(StringTest("CaseClass1"), StringTest("CaseClass2"), StringTest("CaseClass3"))))
-  }
+      Map("a" -> 1),
+      List(Map("a" -> true, "b" -> false)),
+      Map(
+        "a" -> List(
+          Map(
+            "i1" -> InnerTest("Tested", false, 2, Some("some")),
+            "i2" -> InnerTest("Tested", false, 2, None))))))
 
-  test("Option mappings") {
-
-    case class InnerTest(string: String)
-    case class OptionTest(
-      string: Option[String],
-      bool: Option[Boolean],
-      int: Option[Int],
-      long: Option[Long],
-      double: Option[Double],
-      list: Option[List[Int]],
-      inner: Option[InnerTest]
-    )
-
-    val emptyConfig = ConfigFactory.parseString("")
-    val config = ConfigFactory.parseString(
-      """
-        | string = "Tested"
-        | bool = true
-        | int = 1,
-        | long = 2,
-        | double = 3,
-        | list = [1, 2, 3,],
-        | inner = { string = "Tested" }
-      """.stripMargin)
-
-
-    assert(getFromConfig[OptionTest](emptyConfig) === OptionTest(None, None, None, None, None, None, None))
-    assert(getFromConfig[OptionTest](config) === OptionTest(
-      Some("Tested"),
-      Some(true),
-      Some(1),
-      Some(2l),
-      Some(3d),
-      Some(List(1, 2, 3)),
-      Some(InnerTest("Tested"))))
   }
 }

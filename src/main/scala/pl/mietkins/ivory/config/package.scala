@@ -1,6 +1,7 @@
 package pl.mietkins.ivory
 
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigValue}
+
 import scala.language.experimental.macros
 
 package object config {
@@ -29,25 +30,33 @@ package object config {
     *
     * <pre>
     *
-    * ((c: Config) =>
-    *   Person(
-    *     pet = if (c.hasPath("pet")) Some(
-    *       ((c: Config) => Pet(name = c.getString("name"))) (c.getConfig("pet")))
-    *     else None,
-    *     hobbies = c.getConfigList("hobbies").toList.map(((e) =>
-    *       ((c: Config) => Hobby(name = c.getString("name"))) (e))),
-    *     age = c.getLong("age"),
-    *     name = c.getString("name")))
+    * import com.typesafe.config.{ConfigList, ConfigObject, ConfigValue}
+    *
+    * import scala.collection.JavaConversions._;
+    *
+    * ((cv: ConfigValue) => {
+    *    val configObject = cv.asInstanceOf[ConfigObject];
+    *
+    *    Person(
+    *      pet = if (configObject.contains("pet"))
+    *        ((cv: ConfigValue) => Some(((cv: ConfigValue) => {
+    *          val configObject = cv.asInstanceOf[ConfigObject];
+    *          Pet(name = ((cv: ConfigValue) => cv.unwrapped().asInstanceOf[String]) (configObject.get("name")))
+    *        }) (cv))) (configObject.get("pet"))
+    *      else None,
+    *      hobbies = ((cv: ConfigValue) => cv.asInstanceOf[ConfigList].map(((e) => ((cv: ConfigValue) => {
+    *        val configObject = cv.asInstanceOf[ConfigObject];
+    *        Hobby(name = ((cv: ConfigValue) => cv.unwrapped().asInstanceOf[String]) (configObject.get("name")))
+    *      }) (e))).toList) (configObject.get("hobbies")),
+    *      age = ((cv: ConfigValue) => cv.unwrapped().asInstanceOf[java.lang.Number].longValue) (configObject.get("age")),
+    *      name = ((cv: ConfigValue) => cv.unwrapped().asInstanceOf[String]) (configObject.get("name")))
+    *  })
     *
     * </pre>
     *
-    * Required imports
-    *
-    * <pre>
-    * import com.typesafe.config.Config
-    * import scala.collection.JavaConversions._
-    * </pre>
     */
 
-  def getFromConfig[T]: Config => T = macro Impl.getFromConfigImpl[T]
+  def getFromConfig[T]: ConfigValue => T = macro Impl.getFromConfigImpl[T]
+
+  implicit def toConfigValue(c : Config) : ConfigValue = c.root()
 }

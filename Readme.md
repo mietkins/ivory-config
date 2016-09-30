@@ -3,7 +3,7 @@ This is SIMPLE automapper from com.typesafe.config.Config to case class powered 
 
 Supported types:
 
-    case class, List, Option, String, Boolean, Int, Long, Double
+    T ∈ [case class, Map[String, T] List[T], Option[T], String, Boolean, Int, Long, Double]
 
 ## Build status
 [![Build Status](https://travis-ci.org/mietkins/ivory-config.svg?branch=master)](https://travis-ci.org/mietkins/ivory-config)
@@ -12,21 +12,13 @@ Supported types:
 
 Add dependency
 
-    libraryDependencies += "pl.mietkins" %% "ivory-config" % "0.1.0"
-
-Required Imports
-
-```scala
-import com.typesafe.config.Config
-import scala.collection.JavaConversions._
-```
+    libraryDependencies += "pl.mietkins" %% "ivory-config" % "0.2.0"
 
 ## Example
 
 ```scala
-import com.typesafe.config.{ConfigFactory, Config}
-import pl.mietkins.ivory.config.getFromConfig
-import scala.collection.JavaConversions._
+import com.typesafe.config.{ConfigFactory}
+import pl.mietkins.ivory.config._
 
 object example1 extends App {
 

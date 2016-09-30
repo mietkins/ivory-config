@@ -1,0 +1,6 @@
+0.2.0
+- REDESIGN, break api
+- added support for Map, now:
+    T ∈ [case class, Map[String, T] List[T], Option[T], String, Boolean, Int, Long, Double]
+- more flexible implementation
+- resolved nested list problem ( List[List[_]] )
