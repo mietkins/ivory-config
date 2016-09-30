@@ -49,5 +49,5 @@ package object config {
     * </pre>
     */
 
-  def getFromConfig[T]: Config => T = macro impl.getFromConfigImpl[T]
+  def getFromConfig[T]: Config => T = macro Impl.getFromConfigImpl[T]
 }

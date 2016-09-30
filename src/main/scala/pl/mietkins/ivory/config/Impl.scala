@@ -4,34 +4,45 @@ import com.typesafe.config.Config
 
 import scala.reflect.macros.blackbox.Context
 
-object impl {
+object Impl {
 
-  private val supportedTypesString = """"
+  private val supportedTypesString =
+    """"
     Supported types:
-      case class, List, Option, String, Boolean, Int, Long, Double
+      T ∈ [case class, List[T], Option[T], String, Boolean, Int, Long, Double]
     """
 
   private def isCaseClass(c: Context)(symbol: c.Symbol): Boolean = symbol.isClass && symbol.asClass.isCaseClass
 
-  private def getCaseClassAccessors(c: Context)(t: c.Type): List[c.Symbol] = {
-    t.members.collect({
+  private def getCaseClassAccessors(c: Context)(tpe: c.Type): List[c.Symbol] = {
+    tpe.members.collect({
       case m: c.universe.MethodSymbol if m.isCaseAccessor => m
     }).toList
   }
 
-  private def handlePath(c: Context)(tpe: c.Type, path: String): c.Tree = {
-
+  private def matchAnyVal(c: Context)(path: String): PartialFunction[c.Type, c.Tree] = {
     import c.universe._
-
-    tpe.resultType match {
+    {
       case t if t <:< c.typeOf[AnyVal] || t =:= c.typeOf[String] => {
         val methodName = s"get${t.typeSymbol.name.decodedName.toString}"
         q"c.${TermName(methodName)}(${path})"
       }
+    }
+  }
+
+  private def matchOption(c: Context)(path: String)(implicit ttag: c.TypeTag[Option[_]]): PartialFunction[c.Type, c.Tree] = {
+    import c.universe._
+    {
       case t if t <:< c.typeOf[Option[_]] => {
         val innerTree = handlePath(c)(t.typeArgs.head, path)
         q"if(c.hasPath($path)) Some(${innerTree}) else None"
       }
+    }
+  }
+
+  private def matchList(c: Context)(path: String)(implicit ttag: c.TypeTag[List[_]]): PartialFunction[c.Type, c.Tree] = {
+    import c.universe._
+    {
       case t if t <:< c.typeOf[List[_]] => {
         val typeParam = t.typeArgs.head
 
@@ -43,9 +54,26 @@ object impl {
           q"c.${TermName(methodName)}($path).map(e => e : ${TypeName(symbolName)}).toList"
         }
       }
-      case t if isCaseClass(c)(t.typeSymbol) => q"${handleCaseClass(c)(t)}(c.getConfig(${path}))"
-      case t => throw new NotImplementedError(supportedTypesString)
     }
+  }
+
+  private def matchCaseClass(c: Context)(path: String): PartialFunction[c.Type, c.Tree] = {
+    import c.universe._
+    {
+      case t if isCaseClass(c)(t.typeSymbol) => q"${handleCaseClass(c)(t)}(c.getConfig(${path}))"
+    }
+  }
+
+  private def matchNotImplemented(c: Context)(path: String): PartialFunction[c.Type, c.Tree] = {
+    case t => throw new NotImplementedError(supportedTypesString)
+  }
+
+  private def handlePath(c: Context)(tpe: c.Type, path: String): c.Tree = {
+    (matchAnyVal(c)(path) orElse
+      matchOption(c)(path) orElse
+      matchList(c)(path) orElse
+      matchCaseClass(c)(path) orElse
+      matchNotImplemented(c)(path))(tpe.resultType)
   }
 
   def handleCaseClass(c: Context)(tpe: c.Type): c.Tree = {

@@ -7,13 +7,15 @@ import scala.reflect.macros.blackbox.Context
 
 object testImpl {
 
-  import impl._
+  import Impl._
 
   def getFromConfigImplTest[T: c.WeakTypeTag](c: Context): c.Expr[Config => T] = {
 
     import c.universe._
 
     val tree = handleCaseClass(c)(c.weakTypeOf[T])
+
+    // scalastyle:off
 
     println("=" * 10, "RAW", "=" * 10)
 
@@ -22,6 +24,8 @@ object testImpl {
     println("=" * 10, "CODE", "=" * 10)
 
     println(show(tree))
+
+    // scalastyle:on
 
     c.Expr[Config => T](tree)
   }
